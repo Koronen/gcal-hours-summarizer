@@ -1,3 +1,4 @@
+from os import environ as ENV
 from argparse import ArgumentParser
 from dateutil.parser import parse as parse_datetime
 from getpass import getpass
@@ -8,25 +9,15 @@ import gdata.calendar.client
 SOURCE='Google Calendar Hours Summarizer (https://github.com/Koronen/gcal-hours-summarizer)'
 
 def main():
-    parser = build_argument_parser()
-    args = parser.parse_args()
-
-    if not args.username:
-        args.username = raw_input('Username: ')
-
-    if not args.password:
-        args.password = getpass('Password: ')
-
-    if not args.calendar:
-        args.calendar = raw_input('CalendarID: ')
+    username, password, calendar_id = load_configuration()
 
     client = gdata.calendar.client.CalendarClient(source=SOURCE)
-    client.ClientLogin(args.username, args.password, client.source)
+    client.ClientLogin(username, password, client.source)
 
     query = gdata.calendar.client.CalendarEventQuery(start_min='2013-11-01',
             start_max='2013-11-30', max_results=150)
     feed = client.GetCalendarEventFeed('https://www.google.com/calendar/feeds/' +
-            args.calendar + '/private/full', q=query)
+            calendar_id + '/private/full', q=query)
 
     hours = {}
     for event in feed.entry:
@@ -41,6 +32,30 @@ def main():
 
     for title, duration in hours.items():
         print "%s: %.2f" % (title, duration)
+
+def load_configuration():
+    parser = build_argument_parser()
+    args = parser.parse_args()
+
+    username = ENV.get('USERNAME', None)
+    if args.username:
+        username = args.username
+    if not username:
+        username = raw_input('Username: ')
+
+    password = ENV.get('PASSWORD', None)
+    if args.password:
+        password = args.password
+    if not password:
+        password = getpass('Password: ')
+
+    calendar = ENV.get('CALENDAR', None)
+    if args.calendar:
+        calendar = args.calendar
+    if not calendar:
+        calendar = raw_input('CalendarID: ')
+
+    return username, password, calendar
 
 def build_argument_parser():
     parser = ArgumentParser(description='Summarizes durations of calendar events')
