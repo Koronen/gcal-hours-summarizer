@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 from dateutil.parser import parse as parse_datetime
 from getpass import getpass
 
@@ -6,18 +7,26 @@ import gdata.calendar.client
 
 SOURCE='Google Calendar Hours Summarizer (https://github.com/Koronen/gcal-hours-summarizer)'
 
-username=raw_input('Username: ')
-password=getpass('Password: ')
-calendarId=raw_input('CalendarID: ')
-
 def main():
+    parser = build_argument_parser()
+    args = parser.parse_args()
+
+    if not args.username:
+        args.username = raw_input('Username: ')
+
+    if not args.password:
+        args.password = getpass('Password: ')
+
+    if not args.calendar:
+        args.calendar = raw_input('CalendarID: ')
+
     client = gdata.calendar.client.CalendarClient(source=SOURCE)
-    client.ClientLogin(username, password, client.source)
+    client.ClientLogin(args.username, args.password, client.source)
 
     query = gdata.calendar.client.CalendarEventQuery(start_min='2013-11-01',
             start_max='2013-11-30', max_results=150)
     feed = client.GetCalendarEventFeed('https://www.google.com/calendar/feeds/' +
-            calendarId + '/private/full', q=query)
+            args.calendar + '/private/full', q=query)
 
     hours = {}
     for event in feed.entry:
@@ -32,6 +41,13 @@ def main():
 
     for title, duration in hours.items():
         print "%s: %.2f" % (title, duration)
+
+def build_argument_parser():
+    parser = ArgumentParser(description='Summarizes durations of calendar events')
+    parser.add_argument('-u', '--username', type=str, help='set username to use for login')
+    parser.add_argument('-p', '--password', type=str, help='set password to use for login')
+    parser.add_argument('-c', '--calendar', type=str, help='set calendar to use')
+    return parser
 
 if __name__ == "__main__":
     main()
