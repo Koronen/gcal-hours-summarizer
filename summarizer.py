@@ -1,13 +1,14 @@
 from dateutil.parser import parse as parse_datetime
+from getpass import getpass
 
 import gdata.calendar.data
 import gdata.calendar.client
 
 SOURCE='Google Calendar Hours Summarizer (https://github.com/Koronen/gcal-hours-summarizer)'
 
-username='USERNAME'
-password='PASSWORD'
-calendarId='CALENDARID'
+username=raw_input('Username: ')
+password=getpass('Password: ')
+calendarId=raw_input('CalendarID: ')
 
 def main():
     client = gdata.calendar.client.CalendarClient(source=SOURCE)
