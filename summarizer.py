@@ -10,14 +10,9 @@ SOURCE='Google Calendar Hours Summarizer (https://github.com/Koronen/gcal-hours-
 
 def main():
     username, password, calendar_id = load_configuration()
-
-    client = gdata.calendar.client.CalendarClient(source=SOURCE)
-    client.ClientLogin(username, password, client.source)
-
-    query = gdata.calendar.client.CalendarEventQuery(start_min='2013-11-01',
-            start_max='2013-11-30', max_results=150)
-    feed = client.GetCalendarEventFeed('https://www.google.com/calendar/feeds/' +
-            calendar_id + '/private/full', q=query)
+    client = build_client(username, password)
+    feed = client.GetCalendarEventFeed(calendar_url(calendar_id),
+            q=build_query())
 
     hours = {}
     for event in feed.entry:
@@ -63,6 +58,18 @@ def build_argument_parser():
     parser.add_argument('-p', '--password', type=str, help='set password to use for login')
     parser.add_argument('-c', '--calendar', type=str, help='set calendar to use')
     return parser
+
+def build_client(username, password):
+    client = gdata.calendar.client.CalendarClient(source=SOURCE)
+    client.ClientLogin(username, password, client.source)
+    return client
+
+def calendar_url(calendar_id):
+    return 'https://www.google.com/calendar/feeds/' + calendar_id + '/private/full'
+
+def build_query():
+    return gdata.calendar.client.CalendarEventQuery(start_min='2013-11-01',
+            start_max='2013-11-30', max_results=150)
 
 if __name__ == "__main__":
     main()
