@@ -14,18 +14,26 @@ def main():
     feed = client.GetCalendarEventFeed(calendar_url(calendar_id),
             q=build_query())
 
-    hours = {}
-    for event in feed.entry:
-        title = event.title.text
-        starts_at = parse_datetime(event.when[0].start)
-        ends_at = parse_datetime(event.when[0].end)
+    def entry_to_event_tuple(entry):
+        title = entry.title.text
+        starts_at = parse_datetime(entry.when[0].start)
+        ends_at = parse_datetime(entry.when[0].end)
         duration = (ends_at - starts_at).seconds / 3600.0
-        try:
-            hours[title] += duration
-        except KeyError:
-            hours[title] = duration
+        return (title, duration)
 
-    for title, duration in hours.items():
+    events = map(entry_to_event_tuple, feed.entry)
+
+    def aggregate_hours(prev, curr):
+        title, duration = curr[0], curr[1]
+        try:
+            prev[title] += duration
+        except KeyError:
+            prev[title] = duration
+        return prev
+
+    aggregated_hours = reduce(aggregate_hours, events, {})
+
+    for title, duration in aggregated_hours.items():
         print "%s: %.2f" % (title, duration)
 
 def load_configuration():
