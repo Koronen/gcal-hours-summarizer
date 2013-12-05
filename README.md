@@ -5,7 +5,7 @@ title and aggregates their duration (in hours).
 
 ## Dependencies
 
-This script requires Python and the Google Data APIs. On Debian derivatives,
-these can be installed by running the following command.
+This script requires Python 2.7+ and the Google Data APIs. On Debian
+derivatives, these can be installed by running the following command.
 
     sudo apt-get install -y python python-gdata
