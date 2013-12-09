@@ -9,9 +9,9 @@ import gdata.calendar.client
 SOURCE='Google Calendar Hours Summarizer (https://github.com/Koronen/gcal-hours-summarizer)'
 
 def main():
-    username, password, calendar_id = load_configuration()
-    client = build_client(username, password)
-    feed = client.GetCalendarEventFeed(calendar_url(calendar_id),
+    conf = load_configuration()
+    client = build_client(conf.username, conf.password)
+    feed = client.GetCalendarEventFeed(calendar_url(conf.calendar_id),
             q=build_query())
 
     def entry_to_event_tuple(entry):
@@ -37,35 +37,32 @@ def main():
         print "%s: %.2f" % (title, duration)
 
 def load_configuration():
-    parser = build_argument_parser()
-    args = parser.parse_args()
 
-    username = ENV.get('USERNAME', None)
-    if args.username:
-        username = args.username
-    if not username:
-        username = raw_input('Username: ')
-
-    password = ENV.get('PASSWORD', None)
-    if args.password:
-        password = args.password
-    if not password:
-        password = getpass('Password: ')
-
-    calendar = ENV.get('CALENDAR', None)
-    if args.calendar:
-        calendar = args.calendar
-    if not calendar:
-        calendar = raw_input('CalendarID: ')
-
-    return username, password, calendar
-
-def build_argument_parser():
     parser = ArgumentParser(description='Summarizes durations of calendar events')
     parser.add_argument('-u', '--username', type=str, help='set username to use for login')
     parser.add_argument('-p', '--password', type=str, help='set password to use for login')
-    parser.add_argument('-c', '--calendar', type=str, help='set calendar to use')
-    return parser
+    parser.add_argument('-c', '--calendar', type=str, dest='calendar_id', help='set calendar to use (CalendarID)')
+    args = parser.parse_args()
+
+    def env(name):
+        return ENV.get(name, None)
+
+    if not args.username:
+       args.username = env('USERNAME')
+    if not args.username:
+        args.username = raw_input('Username: ')
+
+    if not args.password:
+       args.password = env('PASSWORD')
+    if not args.password:
+        args.password = getpass('Password: ')
+
+    if not args.calendar_id:
+       args.calendar_id = env('CALENDARID')
+    if not args.calendar_id:
+        args.calendar_id = raw_input('CalendarID: ')
+
+    return args
 
 def build_client(username, password):
     client = gdata.calendar.client.CalendarClient(source=SOURCE)
