@@ -1,4 +1,5 @@
 from os import environ as ENV
+from os.path import exists as file_exists
 from argparse import ArgumentParser
 from dateutil.parser import parse as parse_datetime
 from getpass import getpass
@@ -37,6 +38,7 @@ def main():
         print "%s: %.2f" % (title, duration)
 
 def load_configuration():
+    read_dotenv('.env')
 
     parser = ArgumentParser(description='Summarizes durations of calendar events')
     parser.add_argument('-u', '--username', type=str, help='set username to use for login')
@@ -63,6 +65,20 @@ def load_configuration():
         args.calendar_id = raw_input('CalendarID: ')
 
     return args
+
+def read_dotenv(dotenv):
+    if file_exists(dotenv):
+        for k, v in parse_dotenv(dotenv):
+            ENV.setdefault(k, v)
+
+def parse_dotenv(dotenv):
+    for line in open(dotenv):
+        line = line.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        k, v = line.split('=', 1)
+        v = v.strip("'").strip('"')
+        yield k, v
 
 def build_client(username, password):
     client = gdata.calendar.client.CalendarClient(source=SOURCE)
