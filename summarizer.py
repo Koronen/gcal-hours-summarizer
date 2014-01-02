@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from os import environ as ENV
 from os.path import exists as file_exists
 from argparse import ArgumentParser
