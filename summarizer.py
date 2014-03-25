@@ -36,7 +36,7 @@ def main():
 
     aggregated_hours = reduce(aggregate_hours, events, {})
 
-    for title, duration in aggregated_hours.items():
+    for title, duration in sorted(aggregated_hours.items()):
         print "%s: %.2f h" % (title, duration)
 
     print "Total: %.2f h" % (sum(aggregated_hours.values()))
