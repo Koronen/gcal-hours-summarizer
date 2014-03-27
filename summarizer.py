@@ -39,7 +39,15 @@ def main():
     for title, duration in sorted(aggregated_hours.items()):
         print "%s: %.2f h" % (title, duration)
 
-    print "Total: %.2f h" % (sum(aggregated_hours.values()))
+    total_hours = sum(aggregated_hours.values())
+    full_time_hours = 167
+    print "----"
+    print "Total: %.2f h" % (total_hours)
+    if conf.hourly_rate:
+        print "Gross: %.2f SEK" % (total_hours*conf.hourly_rate)
+        if conf.tax_rate:
+            print "Net:   %.2f SEK" % (total_hours*conf.hourly_rate*(1.0-conf.tax_rate))
+    print "Perc.: %.2f%%" % (total_hours/full_time_hours)
 
 def load_configuration():
     read_dotenv('.env')
@@ -48,6 +56,8 @@ def load_configuration():
     parser.add_argument('-u', '--username', type=str, help='set username to use for login')
     parser.add_argument('-p', '--password', type=str, help='set password to use for login')
     parser.add_argument('-c', '--calendar', type=str, dest='calendar_id', help='set calendar to use (CalendarID)')
+    parser.add_argument('-r', '--hourly-rate', type=float, help='set hourly rate to use for payment calculations')
+    parser.add_argument('-t', '--tax-rate', type=float, help='set tax rate to use for payment calculations')
     args = parser.parse_args()
 
     def env(name):
@@ -67,6 +77,12 @@ def load_configuration():
        args.calendar_id = env('CALENDARID')
     if not args.calendar_id:
         args.calendar_id = raw_input('CalendarID: ')
+
+    if not args.hourly_rate and env('HOURLY_RATE'):
+        args.hourly_rate = float(env('HOURLY_RATE'))
+
+    if not args.tax_rate and env('TAX_RATE'):
+        args.tax_rate = float(env('TAX_RATE'))
 
     return args
 
