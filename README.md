@@ -12,7 +12,7 @@ derivatives, these can be installed by running the following command.
 
 ## Configuration
 
-This script requires, at minimum, a Google account password (email address), a
+This script requires, at minimum, a Google account username (email address), a
 Google account password and a Google calendar ID.
 
 The calendar ID can be found by opening Google Calendar, clicking on "Settings",
