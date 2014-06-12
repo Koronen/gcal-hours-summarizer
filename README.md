@@ -29,3 +29,7 @@ called `.env` (see `.env.sample` for a template).
 
 where `START_MIN` and `START_MAX` are ISO 8601 dates or times forming a time
 range. Note that `START_MIN` in inclusive and `START_MAX` exclusive.
+
+For further detail, run
+
+    python ./summarizer.py --help

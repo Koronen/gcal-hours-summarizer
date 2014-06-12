@@ -52,7 +52,7 @@ def main():
 def load_configuration():
     read_dotenv('.env')
 
-    parser = ArgumentParser(description='Summarizes durations of calendar events')
+    parser = ArgumentParser(description='Summarizes durations of calendar events.')
     parser.add_argument('-u', '--username', type=str, help='set username to use for login')
     parser.add_argument('-p', '--password', type=str, help='set password to use for login')
     parser.add_argument('-c', '--calendar', type=str, dest='calendar_id', help='set calendar to use (CalendarID)')
