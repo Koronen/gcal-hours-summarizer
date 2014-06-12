@@ -1,7 +1,7 @@
 # Google Calendar Hours Summarizer
 
-A small tool that fetches all calendar events in a given month, groups them by
-title and aggregates their duration (in hours).
+A small tool that fetches all calendar events in a given time range, groups them
+by title and aggregates their duration (in hours).
 
 ## Dependencies
 
@@ -25,4 +25,7 @@ called `.env` (see `.env.sample` for a template).
 
 ## How to run
 
-    python ./summarizer.py
+    python ./summarizer.py [OPTIONS] START_MIN START_MAX
+
+where `START_MIN` and `START_MAX` are ISO 8601 dates or times forming a time
+range. Note that `START_MIN` in inclusive and `START_MAX` exclusive.

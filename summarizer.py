@@ -15,7 +15,7 @@ def main():
     conf = load_configuration()
     client = build_client(conf.username, conf.password)
     feed = client.GetCalendarEventFeed(calendar_url(conf.calendar_id),
-            q=build_query())
+        q=build_query(conf.start_min, conf.start_max))
 
     def entry_to_event_tuple(entry):
         title = entry.title.text
@@ -58,6 +58,11 @@ def load_configuration():
     parser.add_argument('-c', '--calendar', type=str, dest='calendar_id', help='set calendar to use (CalendarID)')
     parser.add_argument('-r', '--hourly-rate', type=float, help='set hourly rate to use for payment calculations')
     parser.add_argument('-t', '--tax-rate', type=float, help='set tax rate to use for payment calculations')
+    parser.add_argument('start_min', metavar='START_MIN', type=parse_datetime,
+            help='the beginning of the time range (ISO 8601, inclusive)',
+            default='2014-01-01')
+    parser.add_argument('start_max', metavar='START_MAX', type=parse_datetime,
+            help='the end of the time range (ISO 8601, exclusive)')
     args = parser.parse_args()
 
     def env(name):
@@ -108,9 +113,9 @@ def build_client(username, password):
 def calendar_url(calendar_id):
     return 'https://www.google.com/calendar/feeds/' + calendar_id + '/private/full'
 
-def build_query():
-    return gdata.calendar.client.CalendarEventQuery(start_min='2013-11-01',
-            start_max='2013-11-30', max_results=150)
+def build_query(start_min, start_max):
+    return gdata.calendar.client.CalendarEventQuery(
+        start_min=start_min.isoformat(), start_max=start_max.isoformat(), max_results=150)
 
 if __name__ == "__main__":
     main()
