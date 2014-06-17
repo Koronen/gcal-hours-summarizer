@@ -1,7 +1,7 @@
 # Google Calendar Hours Summarizer
 
 A small tool that fetches all calendar events in a given time range, groups them
-by title and aggregates their duration (in hours).
+by title and by description and aggregates their duration (in hours).
 
 ## Dependencies
 

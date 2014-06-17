@@ -5,6 +5,7 @@ from os.path import exists as file_exists
 from argparse import ArgumentParser
 from dateutil.parser import parse as parse_datetime
 from getpass import getpass
+from itertools import groupby
 
 import gdata.calendar.data
 import gdata.calendar.client
@@ -19,28 +20,28 @@ def main():
 
     def entry_to_event_tuple(entry):
         title = entry.title.text
+        description = entry.content.text or '-'
+        description = description.splitlines()[0]
         starts_at = parse_datetime(entry.when[0].start)
         ends_at = parse_datetime(entry.when[0].end)
         duration = (ends_at - starts_at).seconds / 3600.0
-        return (title, duration)
+        return (title, description, duration)
 
-    events = map(entry_to_event_tuple, feed.entry)
+    events = sorted(map(entry_to_event_tuple, feed.entry))
 
-    def aggregate_hours(prev, curr):
-        title, duration = curr[0], curr[1]
-        try:
-            prev[title] += duration
-        except KeyError:
-            prev[title] = duration
-        return prev
+    def get_duration(events):
+        return sum(map(lambda x: x[-1], events))
 
-    aggregated_hours = reduce(aggregate_hours, events, {})
+    for title, ebt in groupby(events, key=lambda x: x[0]):
+        events_by_title = list(ebt)
+        print "%s: %.2f h" % (title, get_duration(events_by_title))
 
-    for title, duration in sorted(aggregated_hours.items()):
-        print "%s: %.2f h" % (title, duration)
+        for description, ebd in groupby(events_by_title, key=lambda x: x[1]):
+            events_by_description = list(ebd)
+            print "    %s: %.2f h" % (description, get_duration(events_by_description))
 
-    total_hours = sum(aggregated_hours.values())
-    full_time_hours = 167
+    total_hours = get_duration(events)
+    full_time_hours = 168
     print "----"
     print "Total: %.2f h" % (total_hours)
     if conf.hourly_rate:
