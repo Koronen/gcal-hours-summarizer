@@ -48,7 +48,7 @@ def main():
         print "Gross: %.2f SEK" % (total_hours*conf.hourly_rate)
         if conf.tax_rate:
             print "Net:   %.2f SEK" % (total_hours*conf.hourly_rate*(1.0-conf.tax_rate))
-    print "Perc.: %.2f%%" % (total_hours/full_time_hours)
+    print "Perc.: %.1f%%" % (100.0*total_hours/full_time_hours)
 
 def load_configuration():
     read_dotenv('.env')
